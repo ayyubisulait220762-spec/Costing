@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cloth Costing</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1b2a49">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Costing">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eceff3;--card:#fff;--ink:#16223b;--mute:#5b6678;--line:#d5dae3;--indigo:#1b2a49;--madder:#b3392f;--chip:#e3e8f1;--on-indigo:#f3f5f9;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1626;--card:#18233b;--ink:#e8ecf4;--mute:#9aa6bd;--line:#2c3a58;--indigo:#0a1120;--madder:#ef7b70;--chip:#233150;--on-indigo:#f3f5f9}}
+:root[data-theme="dark"]{--bg:#0f1626;--card:#18233b;--ink:#e8ecf4;--mute:#9aa6bd;--line:#2c3a58;--indigo:#0a1120;--madder:#ef7b70;--chip:#233150;--on-indigo:#f3f5f9}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 "Source Sans 3",system-ui,sans-serif}
+main{max-width:520px;margin:0 auto;padding:18px 16px 40px}
+h1{font:800 22px "Bricolage Grotesque",system-ui,sans-serif;margin:4px 0 2px}
+.sub{color:var(--mute);margin:0 0 16px;font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+.card h2{font:700 15px "Bricolage Grotesque",sans-serif;margin:0 0 10px}
+.prices{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:block;font-size:13px;color:var(--mute);margin-bottom:4px}
+input[type=number]{width:100%;font:700 22px "Bricolage Grotesque",sans-serif;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:10px;min-width:0}
+input:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--madder);outline-offset:2px}
+.hint{font-size:12px;color:var(--mute);margin-top:4px}
+.pickbox{position:relative}
+.strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;border-radius:10px;background:var(--chip)}
+.strip::-webkit-scrollbar{display:none}
+.strip button{flex:0 0 64px;scroll-snap-align:center;border:0;background:none;color:var(--mute);font:600 20px "Bricolage Grotesque",sans-serif;padding:16px 0;cursor:pointer}
+.strip button[aria-pressed=true]{color:var(--on-indigo);font-weight:800;font-size:26px}
+.mark{position:absolute;left:50%;top:0;bottom:0;width:64px;margin-left:-32px;background:var(--indigo);border-radius:10px;z-index:0;pointer-events:none}
+.strip{position:relative;z-index:1;background:transparent}
+.pickbox{background:var(--chip);border-radius:10px}
+.result{background:var(--indigo);color:var(--on-indigo);border-radius:14px;padding:18px 16px;margin-bottom:14px;
+background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 6px),repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 1px,transparent 1px 6px)}
+.result .l{font-size:14px;opacity:.8}
+.result .big{font:800 52px/1.05 "Bricolage Grotesque",sans-serif;letter-spacing:-1px}
+.result .big small{font-size:18px;font-weight:500;opacity:.75;letter-spacing:0}
+.result .muddal{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.25)}
+.result .muddal .big{font-size:38px;color:#ffd2cc}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+td,th{padding:7px 4px;border-bottom:1px solid var(--line);text-align:right;font-size:15px}
+td:first-child,th:first-child{text-align:left}
+th{font-weight:600;color:var(--mute);font-size:13px}
+tr.tot td{font-weight:700;border-bottom:0}
+.bar{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:10px 0 4px}
+.bar i{display:block}
+details{margin-bottom:14px}
+summary{cursor:pointer;font:700 15px "Bricolage Grotesque",sans-serif;padding:12px 14px;background:var(--card);border:1px solid var(--line);border-radius:14px}
+details[open] summary{border-radius:14px 14px 0 0}
+.inner{background:var(--card);border:1px solid var(--line);border-top:0;border-radius:0 0 14px 14px;padding:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid input{font-size:17px;padding:8px}
+tr.sel td{background:var(--chip);font-weight:700}
+.scroll{overflow-x:auto}
+</style>
+</head>
+<body>
+<main>
+<h1>Cloth costing</h1>
+<p class="sub">Change the two yarn prices and the pick. Everything else updates.</p>
+
+<section class="card">
+  <h2>Yarn prices</h2>
+  <div class="prices">
+    <div><label for="wr">Weft (baana) per 5 kg</label><input id="wr" type="number" inputmode="decimal" value="1530"></div>
+    <div><label for="tr">Warp (taana) per 5 kg</label><input id="tr" type="number" inputmode="decimal" value="1530"></div>
+  </div>
+  <div class="hint" id="perkg"></div>
+</section>
+
+<section class="card">
+  <h2>Pick</h2>
+  <div class="pickbox"><div class="mark"></div><div class="strip" id="strip" role="group" aria-label="Pick"></div></div>
+  <div class="hint">Scroll sideways or tap a number.</div>
+</section>
+
+<section class="result" aria-live="polite">
+  <div class="l">Costing per meter, with GST bharna</div>
+  <div class="big"><span id="inc">–</span> <small>per m</small></div>
+  <div class="muddal">
+    <div class="l">Kapda muddal</div>
+    <div class="big"><span id="mud">–</span> <small>per m</small></div>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Where the cost goes (per takha)</h2>
+  <table>
+    <tr><th></th><th>Weight kg</th><th>Cost</th></tr>
+    <tr><td>Weft (baana)</td><td id="bw"></td><td id="bc"></td></tr>
+    <tr><td>Warp (taana)</td><td id="tw"></td><td id="tc"></td></tr>
+    <tr><td>Mazdoori</td><td></td><td id="mz"></td></tr>
+    <tr class="tot"><td>Total per takha</td><td></td><td id="tot"></td></tr>
+  </table>
+  <div class="bar"><i id="b1" style="background:var(--indigo)"></i><i id="b2" style="background:#6b7fa8"></i><i id="b3" style="background:var(--madder)"></i></div>
+  <div class="hint" id="legend"></div>
+  <table style="margin-top:8px">
+    <tr><td>Cost per meter</td><td id="pm"></td></tr>
+    <tr><td>GST bharna</td><td id="gst"></td></tr>
+  </table>
+</section>
+
+<details>
+  <summary>All picks, 40 to 60</summary>
+  <div class="inner scroll"><table id="all"></table></div>
+</details>
+
+<details>
+  <summary>Fixed settings</summary>
+  <div class="inner"><div class="grid" id="fixed"></div>
+  <div class="hint" style="margin-top:10px">Change these only when the cloth or the mill rates change.</div></div>
+</details>
+</main>
+<script>
+var DEF={wr:1530,tr:1530,pick:52,tap:175,k:1850,width:39,wc:35,taar:2814,tc:30.3,size:100,mz:560,m:149.5,gst:1,disc:5,adj:0.07};
+var LAB={tap:"Tapeline",k:"Formula constant",width:"Width",wc:"Weft count",taar:"Taar (warp ends)",tc:"Warp count",size:"Sizing charge per 5 kg",mz:"Mazdoori per takha",m:"Meters per takha",gst:"GST bharna %",disc:"Muddal discount %",adj:"Muddal adjustment per m"};
+var S=JSON.parse(JSON.stringify(DEF));
+try{var s=JSON.parse(localStorage.getItem("clothcost1")||"null");if(s)for(var k in s)if(k in S)S[k]=s[k];}catch(e){}
+function save(){try{localStorage.setItem("clothcost1",JSON.stringify(S));}catch(e){}}
+function $(id){return document.getElementById(id)}
+function n(v){v=parseFloat(v);return isFinite(v)?v:0}
+function f2(x){return x.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function calc(p,o){
+  var bw=o.tap*p*o.width/o.k/o.wc, bc=bw*(o.wr/5);
+  var tw=o.tap*o.taar/o.k/o.tc, tc=tw*((o.tr+o.size)/5);
+  var tot=bc+tc+o.mz, pm=o.m?tot/o.m:0, gst=pm*o.gst/100, inc=pm+gst, mud=inc*(1-o.disc/100)+o.adj;
+  return{bw:bw,bc:bc,tw:tw,tc:tc,tot:tot,pm:pm,gst:gst,inc:inc,mud:mud};
+}
+function render(){
+  var o={wr:n($("wr").value),tr:n($("tr").value),tap:S.tap,k:S.k||1,width:S.width,wc:S.wc||1,taar:S.taar,tc:S.tc||1,size:S.size,mz:S.mz,m:S.m,gst:S.gst,disc:S.disc,adj:S.adj};
+  S.wr=o.wr;S.tr=o.tr;save();
+  var r=calc(S.pick,o);
+  $("inc").textContent=f2(r.inc);$("mud").textContent=f2(r.mud);
+  $("bw").textContent=r.bw.toFixed(3);$("tw").textContent=r.tw.toFixed(3);
+  $("bc").textContent=f2(r.bc);$("tc").textContent=f2(r.tc);$("mz").textContent=f2(o.mz);$("tot").textContent=f2(r.tot);
+  $("pm").textContent=f2(r.pm);$("gst").textContent=f2(r.gst);
+  var t=r.tot||1,a=r.bc/t*100,b=r.tc/t*100,c=o.mz/t*100;
+  $("b1").style.width=a+"%";$("b2").style.width=b+"%";$("b3").style.width=c+"%";
+  $("legend").textContent="Weft "+a.toFixed(0)+"%, warp "+b.toFixed(0)+"%, mazdoori "+c.toFixed(0)+"%";
+  $("perkg").textContent="Per kg: weft "+f2(o.wr/5)+", warp "+f2((o.tr+o.size)/5)+" (with sizing)";
+  var h="<tr><th>Pick</th><th>Costing/m</th><th>Muddal/m</th></tr>";
+  for(var p=40;p<=60;p++){var q=calc(p,o);h+="<tr"+(p==S.pick?' class="sel"':"")+"><td>"+p+"</td><td>"+f2(q.inc)+"</td><td>"+f2(q.mud)+"</td></tr>";}
+  $("all").innerHTML=h;
+}
+// pick strip
+var strip=$("strip"),W=64;
+strip.style.paddingLeft=strip.style.paddingRight="calc(50% - "+(W/2)+"px)";
+for(var p=40;p<=60;p++){var b=document.createElement("button");b.type="button";b.textContent=p;b.dataset.p=p;strip.appendChild(b);}
+function mark(){var bs=strip.children;for(var i=0;i<bs.length;i++)bs[i].setAttribute("aria-pressed",bs[i].dataset.p==S.pick?"true":"false");}
+function goTo(p,smooth){var el=strip.querySelector('[data-p="'+p+'"]');strip.scrollTo({left:el.offsetLeft+W/2-strip.clientWidth/2,behavior:smooth?"smooth":"auto"});}
+strip.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;S.pick=+b.dataset.p;mark();goTo(S.pick,true);save();render();});
+var tm;strip.addEventListener("scroll",function(){clearTimeout(tm);tm=setTimeout(function(){
+  var idx=Math.round(strip.scrollLeft/W),p=Math.min(60,Math.max(40,40+idx));
+  if(p!==S.pick){S.pick=p;mark();save();render();}},60);});
+// fixed settings
+var fx=$("fixed");
+Object.keys(LAB).forEach(function(k){var d=document.createElement("div");d.innerHTML='<label for="f_'+k+'">'+LAB[k]+'</label><input id="f_'+k+'" type="number" inputmode="decimal" step="any" value="'+S[k]+'">';fx.appendChild(d);
+  d.querySelector("input").addEventListener("input",function(e){S[k]=n(e.target.value);save();render();});});
+$("wr").value=S.wr;$("tr").value=S.tr;
+$("wr").addEventListener("input",render);$("tr").addEventListener("input",render);
+mark();render();
+requestAnimationFrame(function(){goTo(S.pick,false);});
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}
+</script>
+</body>
+</html>
