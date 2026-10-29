@@ -61,6 +61,10 @@ details[open] summary{border-radius:14px 14px 0 0}
 .grid input{font-size:17px;padding:8px}
 tr.sel td{background:var(--chip);font-weight:700}
 .scroll{overflow-x:auto}
+
+body::after{content:"";position:fixed;inset:0;z-index:50;pointer-events:none;opacity:.1;
+background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='170'%3E%3Ctext x='120' y='88' text-anchor='middle' font-family='Arial,Helvetica,sans-serif' font-size='22' font-weight='700' fill='%23808080' transform='rotate(-25 120 85)'%3ESulait Ayyubi%3C/text%3E%3C/svg%3E");background-repeat:repeat}
+.credit{text-align:center;color:var(--mute);font-size:13px;margin:18px 0 0}
 </style>
 </head>
 <body>
@@ -119,6 +123,7 @@ tr.sel td{background:var(--chip);font-weight:700}
   <div class="inner"><div class="grid" id="fixed"></div>
   <div class="hint" style="margin-top:10px">Change these only when the cloth or the mill rates change.</div></div>
 </details>
+<p class="credit">Made by Sulait Ayyubi</p>
 </main>
 <script>
 var DEF={wr:1530,tr:1530,pick:52,tap:175,k:1850,width:39,wc:35,taar:2814,tc:30.3,size:100,mz:560,m:149.5,gst:1,disc:5,adj:0.07};
