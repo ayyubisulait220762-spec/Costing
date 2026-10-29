@@ -87,7 +87,7 @@ tr.sel td{background:var(--chip);font-weight:700}
   <div class="l">Costing per meter, with GST bharna</div>
   <div class="big"><span id="inc">–</span> <small>per m</small></div>
   <div class="muddal">
-    <div class="l">Kapda muddal</div>
+    <div class="l">Costing without 5% GST</div>
     <div class="big"><span id="mud">–</span> <small>per m</small></div>
   </div>
 </section>
@@ -122,9 +122,11 @@ tr.sel td{background:var(--chip);font-weight:700}
 </main>
 <script>
 var DEF={wr:1530,tr:1530,pick:52,tap:175,k:1850,width:39,wc:35,taar:2814,tc:30.3,size:100,mz:560,m:149.5,gst:1,disc:5,adj:0.07};
-var LAB={tap:"Tapeline",k:"Formula constant",width:"Width",wc:"Weft count",taar:"Taar (warp ends)",tc:"Warp count",size:"Sizing charge per 5 kg",mz:"Mazdoori per takha",m:"Meters per takha",gst:"GST bharna %",disc:"Muddal discount %",adj:"Muddal adjustment per m"};
+var LAB={tap:"Tapeline",k:"Formula constant",width:"Width",wc:"Weft count",taar:"Taar (warp ends)",tc:"Warp count",size:"Sizing charge per 5 kg",mz:"Mazdoori per takha",m:"Meters per takha",gst:"GST bharna % (fixed)",disc:"GST less % (fixed)",adj:"Adjustment per m (fixed)"};
+var FIXED={gst:1,disc:1,adj:1};
 var S=JSON.parse(JSON.stringify(DEF));
 try{var s=JSON.parse(localStorage.getItem("clothcost1")||"null");if(s)for(var k in s)if(k in S)S[k]=s[k];}catch(e){}
+S.gst=DEF.gst;S.disc=DEF.disc;S.adj=DEF.adj;
 function save(){try{localStorage.setItem("clothcost1",JSON.stringify(S));}catch(e){}}
 function $(id){return document.getElementById(id)}
 function n(v){v=parseFloat(v);return isFinite(v)?v:0}
@@ -147,7 +149,7 @@ function render(){
   $("b1").style.width=a+"%";$("b2").style.width=b+"%";$("b3").style.width=c+"%";
   $("legend").textContent="Weft "+a.toFixed(0)+"%, warp "+b.toFixed(0)+"%, mazdoori "+c.toFixed(0)+"%";
   $("perkg").textContent="Per kg: weft "+f2(o.wr/5)+", warp "+f2((o.tr+o.size)/5)+" (with sizing)";
-  var h="<tr><th>Pick</th><th>Costing/m</th><th>Muddal/m</th></tr>";
+  var h="<tr><th>Pick</th><th>Costing/m</th><th>Without 5% GST/m</th></tr>";
   for(var p=40;p<=60;p++){var q=calc(p,o);h+="<tr"+(p==S.pick?' class="sel"':"")+"><td>"+p+"</td><td>"+f2(q.inc)+"</td><td>"+f2(q.mud)+"</td></tr>";}
   $("all").innerHTML=h;
 }
@@ -163,8 +165,8 @@ var tm;strip.addEventListener("scroll",function(){clearTimeout(tm);tm=setTimeout
   if(p!==S.pick){S.pick=p;mark();save();render();}},60);});
 // fixed settings
 var fx=$("fixed");
-Object.keys(LAB).forEach(function(k){var d=document.createElement("div");d.innerHTML='<label for="f_'+k+'">'+LAB[k]+'</label><input id="f_'+k+'" type="number" inputmode="decimal" step="any" value="'+S[k]+'">';fx.appendChild(d);
-  d.querySelector("input").addEventListener("input",function(e){S[k]=n(e.target.value);save();render();});});
+Object.keys(LAB).forEach(function(k){var d=document.createElement("div");d.innerHTML='<label for="f_'+k+'">'+LAB[k]+'</label><input id="f_'+k+'" type="number" inputmode="decimal" step="any" value="'+S[k]+'"'+(FIXED[k]?' readonly tabindex="-1" style="opacity:.6"':'')+'>';fx.appendChild(d);
+  if(!FIXED[k])d.querySelector("input").addEventListener("input",function(e){S[k]=n(e.target.value);save();render();});});
 $("wr").value=S.wr;$("tr").value=S.tr;
 $("wr").addEventListener("input",render);$("tr").addEventListener("input",render);
 mark();render();
